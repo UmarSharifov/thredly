@@ -1,0 +1,88 @@
+{{define "base"}}
+<!doctype html>
+<html lang='en'>
+<head>
+    <meta charset='utf-8'>
+    <title>{{template "title" .}} - Хранилище Заметок</title>
+    <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700'>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100">
+    <nav class="bg-white">
+    <div class="fixed px-48 bg-white h-16 w-full">
+        <div class="flex h-16 items-center justify-between">
+        <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
+            <button type="button" class="relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white" aria-controls="mobile-menu" aria-expanded="false">
+            <span class="absolute -inset-0.5"></span>
+            <span class="sr-only">Open main menu</span>
+            <svg class="block h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+            </svg>
+            <svg class="hidden h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+            </button>
+        </div>
+        <div class="flex flex-1 justify-center sm:items-stretch sm:justify-start">
+            <div class="flex flex-shrink-0 items-center">
+            <img class="h-8 w-auto" src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500" alt="Your Company">
+            </div>
+            <div class="hidden sm:ml-6 sm:block">
+            <div class="flex space-x-4">
+                <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" -->
+                <a href="http://127.0.0.1:4000/" class="text-gray-950 hover:text-gray-950 px-3 py-2 text-xl font-medium">Главная</a>
+                <a href="#" class="text-gray-300 hover:text-gray-950 rounded-md px-3 py-2 text-xl font-medium">Рекомендовано</a>
+                <a href="#" class="text-gray-300 hover:text-gray-950 rounded-md px-3 py-2 text-xl font-medium">События</a>
+
+            </div>
+            </div>
+        </div>
+        <div class="absolute inset-y-0 right-0 flex items-center pr-12 sm:static sm:inset-auto sm:ml-12 sm:pr-0">
+            <a href="http://127.0.0.1:4000/profile" class="text-gray-300 hover:text-gray-950 rounded-md px-3 py-2 text-xl font-medium">Моя страница</a>
+            <button type="button" class="relative p-1 text-gray-400 hover:text-gray-950">
+            <span class="absolute -inset-1.5"></span>
+            <span class="sr-only">View notifications</span>
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+            </svg>
+            </button>
+            </div>
+        <div class="relative flex">
+            <input
+                type="search"
+                class="relative m-0 block flex-auto rounded-full border border-solid border-neutral-200 bg-transparent bg-clip-padding px-3 py-[0.25rem] text-base font-normal leading-[1.6] text-surface outline-none transition duration-200 ease-in-out placeholder:text-neutral-500 focus:z-[3] focus:border-primary focus:shadow-inset focus:outline-none motion-reduce:transition-none dark:border-white/10 dark:text-white dark:placeholder:text-neutral-200 dark:autofill:shadow-autofill dark:focus:border-primary"
+                placeholder="Найти"
+                aria-label="Search"
+                id="exampleFormControlInput2"
+                aria-describedby="button-addon2" />
+            <span
+                class="flex items-center whitespace-nowrap px-3 py-[0.25rem] text-surface dark:border-neutral-400 dark:text-white [&>svg]:h-5 [&>svg]:w-5"
+                id="button-addon2">
+                <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1"
+                stroke="currentColor">
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                </svg>
+            </span>
+            </div>
+        </div>
+        </div>
+    </div>
+    </nav>
+    <main class="pt-20">
+        {{template "main" .}}
+    </main>
+    {{template "footer" .}}
+    <!-- Подключаем JS чтобы сделать сайт более динамичным -->
+    <script src="/static/js/main.js" type="text/javascript"></script>
+</body>
+</html>
+{{end}}
