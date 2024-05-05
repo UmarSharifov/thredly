@@ -84,6 +84,20 @@ func (app *application) profile(w http.ResponseWriter, r *http.Request) {
 
 // Страница авторизации пользователя
 func (app *application) auth(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method == http.MethodPost {
+		// Получаем логин и пароль из формы POST
+		email := r.FormValue("email")
+		password := r.FormValue("password")
+		// Пример простой проверки логина и пароля (для локального тестирования)
+		if email == "test@test" && password == "test" {
+			// Если пользователь существует и пароль верный, перенаправляем на главную страницу или любую другую страницу
+			http.Redirect(w, r, "/", http.StatusSeeOther)
+			return
+		}
+
+	}
+
 	s, err := app.snippets.Latest()
 	if err != nil {
 		http.NotFound(w, r)
@@ -94,6 +108,55 @@ func (app *application) auth(w http.ResponseWriter, r *http.Request) {
 
 	files := []string{
 		"..\\..\\ui\\html\\auth.page.tmpl",
+		"..\\..\\ui\\html\\base.auth.layout.tmpl",
+		"..\\..\\ui\\html\\footer.partial.tmpl",
+	}
+
+	ts, err := template.ParseFiles(files...)
+	if err != nil {
+		// Поскольку обработчик home теперь является методом структуры application
+		// он может получить доступ к логгерам из структуры.
+		// Используем их вместо стандартного логгера от Go.
+		app.errorLog.Println(err.Error())
+		http.Error(w, "Внутренняя ошибка сервера", 500)
+		return
+	}
+
+	err = ts.Execute(w, data)
+	if err != nil {
+		// Обновляем код для использования логгера-ошибок
+		// из структуры application.
+		app.errorLog.Println(err.Error())
+		http.Error(w, "Внутренняя ошибка сервера", 500)
+	}
+}
+
+// Страница регистрация пользователя
+func (app *application) registration(w http.ResponseWriter, r *http.Request) {
+
+	// if r.Method == http.MethodPost {
+	// 	// Получаем логин и пароль из формы POST
+	// 	email := r.FormValue("email")
+	// 	password := r.FormValue("password")
+	// 	// Пример простой проверки логина и пароля (для локального тестирования)
+	// 	if email == "test@test" && password == "test" {
+	// 		// Если пользователь существует и пароль верный, перенаправляем на главную страницу или любую другую страницу
+	// 		http.Redirect(w, r, "/", http.StatusSeeOther)
+	// 		return
+	// 	}
+
+	// }
+
+	s, err := app.snippets.Latest()
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+
+	data := &templateData{Snippets: s}
+
+	files := []string{
+		"..\\..\\ui\\html\\registration.page.tmpl",
 		"..\\..\\ui\\html\\base.auth.layout.tmpl",
 		"..\\..\\ui\\html\\footer.partial.tmpl",
 	}
