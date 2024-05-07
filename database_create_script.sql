@@ -1,22 +1,24 @@
 use snippetbox;
 
-CREATE TABLE user (
+CREATE TABLE userAccount (
     id INT AUTO_INCREMENT PRIMARY KEY,
     last_name VARCHAR(50) NOT NULL,
     first_name VARCHAR(50) NOT NULL,
     photo VARCHAR(255),
     date_of_birth DATE,
     email VARCHAR(100) NOT NULL,
-    phone_number VARCHAR(20)
+    phone_number VARCHAR(20),
+    userLogin VARCHAR(100),
+    userPassword VARCHAR(100)
 );
 
 
-INSERT INTO user (last_name, first_name, photo, date_of_birth, email, phone_number) VALUES
-('Иванов', 'Иван', 'ivan.jpg', '1990-05-15', 'ivanov@example.com', '+123456789'),
-('Петров', 'Петр', 'petr.jpg', '1985-09-20', 'petrov@example.com', '+987654321'),
-('Сидорова', 'Анна', 'anna.jpg', '1995-02-10', 'sidorova@example.com', '+111222333'),
-('Козлов', 'Алексей', 'alex.jpg', '1988-12-03', 'kozlov@example.com', '+444555666'),
-('Смирнова', 'Екатерина', 'katya.jpg', '1992-07-25', 'smirnova@example.com', '+777888999');
+INSERT INTO userAccount (last_name, first_name, photo, date_of_birth, email, phone_number, userLogin, userPassword) VALUES
+('Иванов', 'Иван', 'ivan.jpg', '1990-05-15', 'ivanov@example.com', '+123456789', 'user1', 'user1'),
+('Петров', 'Петр', 'petr.jpg', '1985-09-20', 'petrov@example.com', '+987654321', 'user2', 'user2'),
+('Сидорова', 'Анна', 'anna.jpg', '1995-02-10', 'sidorova@example.com', '+111222333','user3', 'user3'),
+('Козлов', 'Алексей', 'alex.jpg', '1988-12-03', 'kozlov@example.com', '+444555666','user4', 'user4'),
+('Смирнова', 'Екатерина', 'katya.jpg', '1992-07-25', 'smirnova@example.com', '+777888999','user5', 'user5');
 
 
 CREATE TABLE tred (

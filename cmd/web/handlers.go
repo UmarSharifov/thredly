@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -134,18 +135,28 @@ func (app *application) auth(w http.ResponseWriter, r *http.Request) {
 // Страница регистрация пользователя
 func (app *application) registration(w http.ResponseWriter, r *http.Request) {
 
-	// if r.Method == http.MethodPost {
-	// 	// Получаем логин и пароль из формы POST
-	// 	email := r.FormValue("email")
-	// 	password := r.FormValue("password")
-	// 	// Пример простой проверки логина и пароля (для локального тестирования)
-	// 	if email == "test@test" && password == "test" {
-	// 		// Если пользователь существует и пароль верный, перенаправляем на главную страницу или любую другую страницу
-	// 		http.Redirect(w, r, "/", http.StatusSeeOther)
-	// 		return
-	// 	}
+	if r.Method == http.MethodPost {
+		// Получаем логин и пароль из формы POST
+		email := r.FormValue("email")
+		password1 := r.FormValue("password1")
+		password2 := r.FormValue("password2")
 
-	// }
+		lastname := "Пользователь1"
+		firstname := "Пользователь1"
+		photo := "img.jpg"
+		phoneNumber := "+123451234"
+
+		if password1 == password2 {
+			_, err := app.users.Insert(lastname, firstname, photo, email, phoneNumber, email, password1)
+			if err != nil {
+				log.Println("Ошибка в insert-e:", err)
+				return
+			}
+			// w.Write([]byte("Создание новой заметки..."))
+			http.Redirect(w, r, fmt.Sprintf("/profile"), http.StatusSeeOther)
+		}
+
+	}
 
 	s, err := app.snippets.Latest()
 	if err != nil {
@@ -217,6 +228,50 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.NotFound(w, r)
 	}
+}
+
+// Подробная информация по пользователю
+func (app *application) profileDetail(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(r.URL.Query().Get("id"))
+	if err != nil || id < 1 {
+		log.Println("ID не подходит или не найден:", err)
+		http.NotFound(w, r)
+		return
+	}
+
+	s, err := app.users.Get(id)
+	if err != nil {
+		if errors.Is(err, models.ErrNoRecord) {
+			log.Println("ID не найден:", err)
+			http.NotFound(w, r)
+		} else {
+			log.Println("Иная ошибка", err)
+			http.NotFound(w, r)
+		}
+		return
+	}
+	// Создаем экземпляр структуры templateData, содержащей данные заметки.
+	data := &templateData{User: s}
+
+	files := []string{
+		"..\\..\\ui\\html\\detail.profile.page.tmpl",
+		"..\\..\\ui\\html\\base.layout.tmpl",
+		"..\\..\\ui\\html\\footer.partial.tmpl",
+	}
+
+	ts, err := template.ParseFiles(files...)
+	if err != nil {
+		log.Println("Шаблон не загрузился", err)
+		http.NotFound(w, r)
+		return
+	}
+
+	err = ts.Execute(w, data)
+	if err != nil {
+		log.Println("Execute не выполнился", err)
+		http.NotFound(w, r)
+	}
+
 }
 
 // Обработчик для создания новой заметки.

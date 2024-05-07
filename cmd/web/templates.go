@@ -9,4 +9,6 @@ import "thredly.com/thredly/pkg/models"
 type templateData struct {
 	Snippet  *models.Snippet
 	Snippets []*models.Snippet
+	User     *models.User
+	Users    []*models.User
 }

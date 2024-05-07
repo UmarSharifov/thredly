@@ -11,6 +11,7 @@ func (app *application) routes() *http.ServeMux {
 	mux.HandleFunc("/auth", app.auth)
 	mux.HandleFunc("/registration", app.registration)
 	mux.HandleFunc("/snippet/create", app.createSnippet)
+	mux.HandleFunc("/profile/detail", app.profileDetail)
 
 	fileServer := http.FileServer(http.Dir("..\\..\\ui\\static\\"))
 	mux.Handle("/static", http.NotFoundHandler())
