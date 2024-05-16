@@ -9,7 +9,7 @@
     <section class="bg-white dark:bg-gray-900 py-8 lg:py-16 antialiased">
         <div class="mx-auto px-4">
             <article class="p-2 text-base bg-white rounded-lg dark:bg-gray-900">
-                <footer class="flex justify-between items-center mb-2">
+                <footer class="flex justify-between items-center mb-2">x
                     <div class="items-center">
                         <p class="mr-3 text-sm text-gray-900 dark:text-white font-semibold"><img
                                 class="mr-2 w-24 h-24 rounded-full"
@@ -18,16 +18,12 @@
                     </div>
                     <div class="mr-auto ml-0" >
                         <p class="text-xl text-gray-900 dark:text-white font-semibold"><time pubdate datetime="2022-02-08"
-                                title="Годжо Сатору">Годжо Сатору</time></p>
+                                title="Годжо Сатору">{{.User.FirstName}} {{.User.LastName}}</time></p>
                         <p class="text-sm text-indigo-200 font-semibold"><time pubdate datetime="2022-02-08"
-                            title="Годжо Сатору">@satorake</time></p>
+                            title="Годжо Сатору">{{.User.Email}}</time></p>
                          <p class="text-sm text-gray-600 dark:text-gray-400 "><time pubdate datetime="2022-02-08"
                             title="Был в сети в 20:31">Был в сети в 20:31</time></p>
-                    </div>
-                    <button class="bg-indigo-200 hover:bg-indigo-200 hover:text-blue-900 text-gray-500 bg-white py-2 px-6 rounded-full">
-                        Подписаться
-                    </button>
-                    
+                    </div>                   
                 </footer>
                 <div class="flex pl-28">
                     <p class="flex text-xl text-indigo-200 font-semibold p-3 hover:text-blue-900">50 публикаций</p>
@@ -114,12 +110,12 @@
         <div class="basis-1/2 bg-white ml-auto mr-2 rounded-lg border-zink-100 px-8 p-6 my-4">
             <div class="">
                 <a href="#" class="text-gray-950 pr-4 rounded-md text-xm font-medium">Стена</a>
-                <a href="#" class="text-gray-400 hover:text-gray-950 pr-4 rounded-md text-xm font-medium">Опубликовать тред</a>
+                <a href="/createthred?id={{.User.ID}}" class="text-gray-400 hover:text-gray-950 pr-4 rounded-md text-xm font-medium">Опубликовать тред</a>
                 <a href="#" class="text-gray-400 hover:text-gray-950 pr-4 rounded-md text-xm font-medium">Мои комментарии</a>
                 <a href="#" class="text-gray-400 hover:text-gray-950 pr-4 rounded-md text-xm font-medium">Понравившиеся</a>
                 <a href="#" class="text-gray-400 hover:text-gray-950 pr-4 rounded-md text-xm font-medium">Избранные</a>
             </div>
-
+{{range .Treds}}
             <article class="p-6 mb-3 text-base bg-white border-t border-gray-200 dark:border-gray-700 dark:bg-gray-900">
                 <footer class="flex justify-between items-center mb-2">
                     <div class="flex items-center">
@@ -150,7 +146,7 @@
                         </ul>
                     </div>
                 </footer>
-                <p class="text-gray-500 dark:text-gray-400">Как вы считаете, ИИ победит человечество ?)))</p>
+                <p class="text-gray-500 dark:text-gray-400">{{.Content}}</p>
                 <p class="text-indigo-200 text-sm pt-4">
                     #глобальная категория #тег1 #тег2 #тег3 
                 </p>
@@ -175,9 +171,32 @@
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 13c-.889.086-1.416.543-2.156 1.057a22.322 22.322 0 0 0-3.958 5.084 1.6 1.6 0 0 1-.582.628 1.549 1.549 0 0 1-1.466.087 1.587 1.587 0 0 1-.537-.406 1.666 1.666 0 0 1-.384-1.279l1.389-4.114M17 13h3V6.5A1.5 1.5 0 0 0 18.5 5v0A1.5 1.5 0 0 0 17 6.5V13Zm-6.5 1H5.585c-.286 0-.372-.014-.626-.15a1.797 1.797 0 0 1-.637-.572 1.873 1.873 0 0 1-.215-1.673l2.098-6.4C6.462 4.48 6.632 4 7.88 4c2.302 0 4.79.943 6.67 1.475"/>
                     </svg>                                           
                     0
-                    </button>     
+                    </button>  
                 </div>
+                <!-- Начало ответить (Ответить - форма для комментов ::)) -->
+                <div>
+                    <form class="w-full bg-white rounded-lg px-4 pt-2">
+                    <div class="-mx-3 mb-6">
+                        <div class="w-full md:w-full px-3 mb-2 mt-2">
+                            <textarea class="rounded-md appearance-none bg-transparent w-full text-gray-700 mr-3 py-1 px-2 leading-tight focus:border-none resize-none border-1 border-indigo-200" name="body" placeholder='Type Your Comment' required></textarea>
+                        </div>
+                        <div class="w-full md:w-full flex items-start md:w-full px-3">
+                            <div class="flex items-start w-1/2 text-gray-700 px-2 mr-auto">
+                                <svg fill="none" class="w-5 h-5 text-gray-600 mr-1" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                <p class="text-xs md:text-sm pt-px">Some HTML is okay.</p>
+                            </div>
+                            <div class="-mr-1">
+                                <input type='submit' class="bg-white bg-indigo-400 text-sm border-2 border-indigo-400 hover:border-indigo-400 hover:bg-white text-white py-1 px-2 rounded hover:text-indigo-400" value='Post Comment'>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <!-- Конец ответить -->
             </article>
+{{end}}
+
             <article class="p-6 pt-1 mb-3 ml-6 lg:ml-12 text-base bg-white rounded-lg dark:bg-gray-900">
                 <footer class="flex justify-between items-center mb-2">
                     <div class="flex items-center">

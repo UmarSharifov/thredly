@@ -26,3 +26,12 @@ type User struct {
 	UserLogin      string
 	UserPwd        string
 }
+
+type Tred struct {
+	ID              int
+	UserId          int
+	PublicationDate time.Time
+	ViewsCount      int
+	Content         string
+	Photo           string
+}

@@ -11,4 +11,6 @@ type templateData struct {
 	Snippets []*models.Snippet
 	User     *models.User
 	Users    []*models.User
+	Tred     *models.Tred
+	Treds    []*models.Tred
 }

@@ -50,13 +50,36 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) profile(w http.ResponseWriter, r *http.Request) {
-	s, err := app.snippets.Latest()
-	if err != nil {
+	id, err := strconv.Atoi(r.URL.Query().Get("id"))
+	if err != nil || id < 1 {
+		log.Println("ID не подходит или не найден:", err)
 		http.NotFound(w, r)
 		return
 	}
 
-	data := &templateData{Snippets: s}
+	s, err := app.users.Get(id)
+	if err != nil {
+		if errors.Is(err, models.ErrNoRecord) {
+			log.Println("ID не найден:", err)
+			http.NotFound(w, r)
+		} else {
+			log.Println("Иная ошибка", err)
+			http.NotFound(w, r)
+		}
+		return
+	}
+
+	t, err := app.treds.GetLatest()
+	if err != nil {
+		log.Println("Ошибка получения последнего треда:", err)
+		http.Error(w, "Внутренняя ошибка сервера", 500)
+		return
+	}
+
+	data := &templateData{
+		User:  s,
+		Treds: t,
+	}
 
 	files := []string{
 		"..\\..\\ui\\html\\profile.page.tmpl",
@@ -153,9 +176,19 @@ func (app *application) registration(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			// w.Write([]byte("Создание новой заметки..."))
-			http.Redirect(w, r, fmt.Sprintf("/profile"), http.StatusSeeOther)
+			s, err := app.users.GetUser(email, password1)
+			if err != nil {
+				if errors.Is(err, models.ErrNoRecord) {
+					log.Println("ID не найден:", err)
+					http.NotFound(w, r)
+				} else {
+					log.Println("Иная ошибка", err)
+					http.NotFound(w, r)
+				}
+				return
+			}
+			http.Redirect(w, r, fmt.Sprintf("/profile/detail?id=%d", s.ID), http.StatusSeeOther)
 		}
-
 	}
 
 	s, err := app.snippets.Latest()
@@ -232,6 +265,24 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 
 // Подробная информация по пользователю
 func (app *application) profileDetail(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost {
+		// Получаем логин и пароль из формы POST
+		id := r.FormValue("id")
+		lastName := r.FormValue("last_name")
+		firstName := r.FormValue("first_name")
+		email := r.FormValue("email")
+		phoneNumber := r.FormValue("phone_number")
+
+		_, err := app.users.Update(id, lastName, firstName, "", email, phoneNumber)
+		if err != nil {
+			log.Println("Ошибка в update-e:", err)
+			return
+		}
+		// http.Redirect(w, r, "/profile", http.StatusSeeOther)
+		http.Redirect(w, r, fmt.Sprintf("/profile?id=%s", id), http.StatusSeeOther)
+
+	}
+
 	id, err := strconv.Atoi(r.URL.Query().Get("id"))
 	if err != nil || id < 1 {
 		log.Println("ID не подходит или не найден:", err)
@@ -299,20 +350,43 @@ func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 
 // Обработчик для создании треда
 func (app *application) createThred(w http.ResponseWriter, r *http.Request) {
-	s, err := app.snippets.Latest()
-	if err != nil {
+
+	id, err := strconv.Atoi(r.URL.Query().Get("id"))
+	if err != nil || id < 1 {
+		log.Println("ID не подходит или не найден:", err)
 		http.NotFound(w, r)
 		return
 	}
 
 	if r.Method == http.MethodPost {
-		r.ParseForm()
-		text := r.Form.Get("tredArea")
-		// Вот ваш текст из textarea
-		w.Write([]byte(text))
+		// Получаем логин и пароль из формы POST
+		id := r.FormValue("id")
+		content := r.FormValue("tredArea")
+
+		_, err := app.treds.Insert(id, content)
+		if err != nil {
+			log.Println("Ошибка в insert-e:", err)
+			return
+		}
+		// http.Redirect(w, r, "/profile", http.StatusSeeOther)
+		http.Redirect(w, r, fmt.Sprintf("/profile?id=%s", id), http.StatusSeeOther)
+
 	}
 
-	data := &templateData{Snippets: s}
+	s, err := app.users.Get(id)
+	if err != nil {
+		if errors.Is(err, models.ErrNoRecord) {
+			log.Println("ID не найден:", err)
+			http.NotFound(w, r)
+		} else {
+			log.Println("Иная ошибка", err)
+			http.NotFound(w, r)
+		}
+		return
+	}
+
+	// Создаем экземпляр структуры templateData, содержащей данные заметки.
+	data := &templateData{User: s}
 
 	files := []string{
 		"..\\..\\ui\\html\\create.page.tmpl",

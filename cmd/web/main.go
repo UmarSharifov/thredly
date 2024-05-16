@@ -17,6 +17,7 @@ type application struct {
 	infoLog  *log.Logger
 	snippets *mysql.SnippetModel
 	users    *mysql.UserModel
+	treds    *mysql.TredModel
 }
 
 func main() {
@@ -46,6 +47,7 @@ func main() {
 		infoLog:  infoLog,
 		snippets: &mysql.SnippetModel{DB: db},
 		users:    &mysql.UserModel{DB: db},
+		treds:    &mysql.TredModel{DB: db},
 	}
 
 	srv := &http.Server{
