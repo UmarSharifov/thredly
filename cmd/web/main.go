@@ -9,21 +9,24 @@ import (
 	"os"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/gorilla/sessions"
 	"thredly.com/thredly/pkg/models/mysql"
 )
 
 type application struct {
-	errorLog *log.Logger
-	infoLog  *log.Logger
-	snippets *mysql.SnippetModel
-	users    *mysql.UserModel
-	treds    *mysql.TredModel
+	errorLog     *log.Logger
+	infoLog      *log.Logger
+	snippets     *mysql.SnippetModel
+	users        *mysql.UserModel
+	treds        *mysql.TredModel
+	sessionStore *sessions.CookieStore
 }
 
 func main() {
 	addr := flag.String("addr", ":4000", "Сетевой адрес веб-сервера")
 	// Определение нового флага из командной строки для настройки MySQL подключения.
 	dsn := flag.String("dsn", "web:pass@/snippetbox?parseTime=true", "Название MySQL источника данных")
+	secret := flag.String("secret", "your-secret-key", "Ключ для шифрования сессий") // Добавьте ключ для шифрования сессий
 	flag.Parse()
 
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
@@ -41,13 +44,14 @@ func main() {
 	// до выхода из функции main().
 	// Подробнее про defer: https://golangs.org/errors#defer
 	defer db.Close()
-
+	sessionStore := sessions.NewCookieStore([]byte(*secret))
 	app := &application{
-		errorLog: errorLog,
-		infoLog:  infoLog,
-		snippets: &mysql.SnippetModel{DB: db},
-		users:    &mysql.UserModel{DB: db},
-		treds:    &mysql.TredModel{DB: db},
+		errorLog:     errorLog,
+		infoLog:      infoLog,
+		snippets:     &mysql.SnippetModel{DB: db},
+		users:        &mysql.UserModel{DB: db},
+		treds:        &mysql.TredModel{DB: db},
+		sessionStore: sessionStore,
 	}
 
 	srv := &http.Server{

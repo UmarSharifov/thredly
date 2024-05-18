@@ -11,6 +11,18 @@ import (
 	"thredly.com/thredly/pkg/models"
 )
 
+// isAuthenticated проверяет, авторизован ли пользователь
+func (app *application) isAuthenticated(r *http.Request) bool {
+	session, err := app.sessionStore.Get(r, "session-name")
+	if err != nil {
+		app.errorLog.Printf("Ошибка получения сессии: %v\n", err)
+		return false
+	}
+
+	_, ok := session.Values["userID"]
+	return ok
+}
+
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
 		http.NotFound(w, r)
@@ -50,37 +62,12 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) profile(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(r.URL.Query().Get("id"))
-	if err != nil || id < 1 {
-		log.Println("ID не подходит или не найден:", err)
-		http.NotFound(w, r)
+	if !app.isAuthenticated(r) {
+		http.Redirect(w, r, "/auth", http.StatusSeeOther)
 		return
 	}
 
-	s, err := app.users.Get(id)
-	if err != nil {
-		if errors.Is(err, models.ErrNoRecord) {
-			log.Println("ID не найден:", err)
-			http.NotFound(w, r)
-		} else {
-			log.Println("Иная ошибка", err)
-			http.NotFound(w, r)
-		}
-		return
-	}
-
-	t, err := app.treds.GetLatest()
-	if err != nil {
-		log.Println("Ошибка получения последнего треда:", err)
-		http.Error(w, "Внутренняя ошибка сервера", 500)
-		return
-	}
-
-	data := &templateData{
-		User:  s,
-		Treds: t,
-	}
-
+	// Ваш код для отображения профиля пользователя
 	files := []string{
 		"..\\..\\ui\\html\\profile.page.tmpl",
 		"..\\..\\ui\\html\\base.layout.tmpl",
@@ -89,46 +76,54 @@ func (app *application) profile(w http.ResponseWriter, r *http.Request) {
 
 	ts, err := template.ParseFiles(files...)
 	if err != nil {
-		// Поскольку обработчик home теперь является методом структуры application
-		// он может получить доступ к логгерам из структуры.
-		// Используем их вместо стандартного логгера от Go.
 		app.errorLog.Println(err.Error())
-		http.Error(w, "Внутренняя ошибка сервера", 500)
+		http.Error(w, "Внутренняя ошибка сервера", http.StatusInternalServerError)
 		return
 	}
 
-	err = ts.Execute(w, data)
+	err = ts.Execute(w, nil)
 	if err != nil {
-		// Обновляем код для использования логгера-ошибок
-		// из структуры application.
 		app.errorLog.Println(err.Error())
-		http.Error(w, "Внутренняя ошибка сервера", 500)
+		http.Error(w, "Внутренняя ошибка сервера", http.StatusInternalServerError)
 	}
 }
 
-// Страница авторизации пользователя
 func (app *application) auth(w http.ResponseWriter, r *http.Request) {
-
 	if r.Method == http.MethodPost {
-		// Получаем логин и пароль из формы POST
 		email := r.FormValue("email")
 		password := r.FormValue("password")
-		// Пример простой проверки логина и пароля (для локального тестирования)
-		if email == "test@test" && password == "test" {
-			// Если пользователь существует и пароль верный, перенаправляем на главную страницу или любую другую страницу
-			http.Redirect(w, r, "/", http.StatusSeeOther)
+
+		userID, err := app.users.Authenticate(email, password)
+		if err != nil {
+			if errors.Is(err, models.ErrInvalidCredentials) {
+				app.errorLog.Printf("Неверный email или пароль: %v\n", err)
+				http.Error(w, "Неверный email или пароль", http.StatusUnauthorized)
+				return
+			} else {
+				app.errorLog.Printf("Ошибка аутентификации: %v\n", err)
+				http.Error(w, "Внутренняя ошибка сервера", http.StatusInternalServerError)
+				return
+			}
+		}
+
+		session, err := app.sessionStore.Get(r, "session-name")
+		if err != nil {
+			app.errorLog.Printf("Ошибка получения сессии: %v\n", err)
+			http.Error(w, "Внутренняя ошибка сервера", http.StatusInternalServerError)
 			return
 		}
 
-	}
+		session.Values["userID"] = userID
+		err = session.Save(r, w)
+		if err != nil {
+			app.errorLog.Printf("Ошибка сохранения сессии: %v\n", err)
+			http.Error(w, "Внутренняя ошибка сервера", http.StatusInternalServerError)
+			return
+		}
 
-	s, err := app.snippets.Latest()
-	if err != nil {
-		http.NotFound(w, r)
+		http.Redirect(w, r, "/profile", http.StatusSeeOther)
 		return
 	}
-
-	data := &templateData{Snippets: s}
 
 	files := []string{
 		"..\\..\\ui\\html\\auth.page.tmpl",
@@ -138,21 +133,23 @@ func (app *application) auth(w http.ResponseWriter, r *http.Request) {
 
 	ts, err := template.ParseFiles(files...)
 	if err != nil {
-		// Поскольку обработчик home теперь является методом структуры application
-		// он может получить доступ к логгерам из структуры.
-		// Используем их вместо стандартного логгера от Go.
-		app.errorLog.Println(err.Error())
-		http.Error(w, "Внутренняя ошибка сервера", 500)
+		app.errorLog.Printf("Ошибка парсинга шаблонов: %v\n", err)
+		http.Error(w, "Внутренняя ошибка сервера", http.StatusInternalServerError)
 		return
 	}
 
-	err = ts.Execute(w, data)
+	err = ts.Execute(w, nil)
 	if err != nil {
-		// Обновляем код для использования логгера-ошибок
-		// из структуры application.
-		app.errorLog.Println(err.Error())
-		http.Error(w, "Внутренняя ошибка сервера", 500)
+		app.errorLog.Printf("Ошибка выполнения шаблона: %v\n", err)
+		http.Error(w, "Внутренняя ошибка сервера", http.StatusInternalServerError)
 	}
+}
+
+func (app *application) logout(w http.ResponseWriter, r *http.Request) {
+	session, _ := app.sessionStore.Get(r, "session-name")
+	delete(session.Values, "userID")
+	session.Save(r, w)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
 // Страница регистрация пользователя

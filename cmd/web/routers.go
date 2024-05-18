@@ -9,6 +9,7 @@ func (app *application) routes() *http.ServeMux {
 	mux.HandleFunc("/profile", app.profile)
 	mux.HandleFunc("/createthred", app.createThred)
 	mux.HandleFunc("/auth", app.auth)
+	mux.HandleFunc("/logout", app.logout) // Добавьте этот маршрут
 	mux.HandleFunc("/registration", app.registration)
 	mux.HandleFunc("/snippet/create", app.createSnippet)
 	mux.HandleFunc("/profile/detail", app.profileDetail)

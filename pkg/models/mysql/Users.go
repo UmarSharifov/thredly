@@ -14,34 +14,19 @@ type UserModel struct {
 
 // Insert - Метод для создания новой заметки в базе дынных.
 func (m *UserModel) Insert(LastName, FirstName, Photo, Email, PhoneNumber, UserLogin, UserPwd string) (int, error) {
-	// Ниже будет SQL запрос, который мы хотим выполнить. Мы разделили его на две строки
-	// для удобства чтения (поэтому он окружен обратными кавычками
-	// вместо обычных двойных кавычек).
-	// stmt := `INSERT INTO snippets (title, content, created, expires)
-	// VALUES(?, ?, UTC_TIMESTAMP(), DATE_ADD(UTC_TIMESTAMP(), INTERVAL ? DAY))`
-
 	stmt := `INSERT INTO userAccount (last_name, first_name, photo, date_of_birth, email, phone_number, userLogin, userPassword) VALUES
 	(?, ?, ?, '1990-05-15', ?, ?, ?, ?)`
 
-	// Используем метод Exec() из встроенного пула подключений для выполнения
-	// запроса. Первый параметр это сам SQL запрос, за которым следует
-	// заголовок заметки, содержимое и срока жизни заметки. Этот
-	// метод возвращает объект sql.Result, который содержит некоторые основные
-	// данные о том, что произошло после выполнении запроса.
 	result, err := m.DB.Exec(stmt, LastName, FirstName, Photo, Email, PhoneNumber, UserLogin, UserPwd)
 	if err != nil {
 		return 0, err
 	}
 
-	// Используем метод LastInsertId(), чтобы получить последний ID
-	// созданной записи из таблицу snippets.
 	id, err := result.LastInsertId()
 	if err != nil {
 		return 0, err
 	}
 
-	// Возвращаемый ID имеет тип int64, поэтому мы конвертируем его в тип int
-	// перед возвратом из метода.
 	return int(id), nil
 }
 
@@ -147,4 +132,26 @@ func (m *UserModel) GetUser(login string, password string) (*models.User, error)
 
 	// Если все хорошо, возвращается объект User.
 	return s, nil
+}
+
+// Authenticate - Метод для проверки учетных данных пользователя.
+func (m *UserModel) Authenticate(UserLogin, UserPwd string) (int, error) {
+	var id int
+	var storedPassword string
+	stmt := `SELECT id, userPassword FROM userAccount WHERE userLogin = ?`
+	row := m.DB.QueryRow(stmt, UserLogin)
+	err := row.Scan(&id, &storedPassword)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return 0, models.ErrInvalidCredentials
+		} else {
+			return 0, err
+		}
+	}
+
+	if UserPwd != storedPassword {
+		return 0, models.ErrInvalidCredentials
+	}
+
+	return id, nil
 }

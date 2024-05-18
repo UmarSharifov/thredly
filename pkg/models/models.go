@@ -6,6 +6,7 @@ import (
 )
 
 var ErrNoRecord = errors.New("models: подходящей записи не найдено")
+var ErrInvalidCredentials = errors.New("models: неверные учетные данные")
 
 type Snippet struct {
 	ID      int
