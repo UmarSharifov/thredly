@@ -99,7 +99,7 @@ func (m *UserModel) Get(id int) (*models.User, error) {
 	return s, nil
 }
 
-// Get - Метод для возвращения данных заметки по её идентификатору ID.
+// Get - Метод для возвращения данных заметки по её логину и паролю
 func (m *UserModel) GetUser(login string, password string) (*models.User, error) {
 	// SQL запрос для получения данных одной записи.
 	stmt := `SELECT ID, first_name, last_name, email, date_of_birth, phone_number FROM useraccount WHERE userLogin = ? and userPassword = ? `

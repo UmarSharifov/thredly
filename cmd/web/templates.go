@@ -7,10 +7,11 @@ import "thredly.com/thredly/pkg/models"
 // На данный момент он содержит только одно поле, но мы добавим в него другие
 // по мере развития нашего приложения.
 type templateData struct {
-	Snippet  *models.Snippet
-	Snippets []*models.Snippet
-	User     *models.User
-	Users    []*models.User
-	Tred     *models.Tred
-	Treds    []*models.Tred
+	Snippet    *models.Snippet
+	Snippets   []*models.Snippet
+	User       *models.User
+	Users      []*models.User
+	Tred       *models.Tred
+	Treds      []*models.Tred
+	TredsChild []*models.Tred
 }

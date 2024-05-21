@@ -30,7 +30,7 @@ CREATE TABLE tred (
     content TEXT,
     photo VARCHAR(255)
 );
-
+alter table tred add column parent_tred_id int ;
 INSERT INTO tred (user_id, publication_date, views_count, content, photo) VALUES
 (1, NOW(), 100, 'Содержание треда 1', 'photo1.jpg'),
 (2, NOW(), 150, 'Содержание треда 2', 'photo2.jpg'),
@@ -54,3 +54,11 @@ INSERT INTO thread_tags (thread_id, tag) VALUES
 (3, 'Technology'),
 (4, 'Science'),
 (5, 'Art');
+
+CREATE TABLE treds_relations (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+	tred_parent INT,
+    foreign key (tred_parent) REFERENCES tred(id),
+    tred_child INT,
+    foreign key (tred_child) REFERENCES tred(id)
+);

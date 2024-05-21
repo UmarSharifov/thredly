@@ -23,18 +23,45 @@ func (app *application) isAuthenticated(r *http.Request) bool {
 	return ok
 }
 
+// Функция для получения ID текущего пользователя из сессии
+func (app *application) getCurrentUserID(r *http.Request) (int, error) {
+	session, err := app.sessionStore.Get(r, "session-name")
+	if err != nil {
+		return 0, err
+	}
+
+	userID, ok := session.Values["userID"].(int)
+	if !ok {
+		return 0, errors.New("не удалось получить ID пользователя из сессии")
+	}
+
+	return userID, nil
+}
+
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
+	if !app.isAuthenticated(r) {
+		http.Redirect(w, r, "/auth", http.StatusSeeOther)
+		return
+	}
+
+	userID, err := app.getCurrentUserID(r)
+	if err != nil {
+		app.errorLog.Printf("Ошибка получения ID пользователя: %v\n", err)
+		http.Error(w, "Внутренняя ошибка сервера", http.StatusInternalServerError)
+		return
+	}
+
 	if r.URL.Path != "/" {
 		http.NotFound(w, r)
 		return
 	}
-	s, err := app.snippets.Latest()
+	s, err := app.users.Get(userID)
 	if err != nil {
 		http.NotFound(w, r)
 		return
 	}
 
-	data := &templateData{Snippets: s}
+	data := &templateData{User: s}
 
 	files := []string{
 		"..\\..\\ui\\html\\home.page.tmpl",
@@ -67,6 +94,38 @@ func (app *application) profile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	userID, err := app.getCurrentUserID(r)
+	if err != nil {
+		app.errorLog.Printf("Ошибка получения ID пользователя: %v\n", err)
+		http.Error(w, "Внутренняя ошибка сервера", http.StatusInternalServerError)
+		return
+	}
+
+	userData, err := app.users.Get(userID)
+	if err != nil {
+		app.errorLog.Printf("Ошибка получения данных пользователя: %v\n", err)
+		http.Error(w, "Ошибка получения данных пользователя", http.StatusInternalServerError)
+		return
+	}
+	tredsData, err := app.treds.GetLatest()
+	if err != nil {
+		app.errorLog.Printf("Ошибка получения последних тредов: %v\n", err)
+		http.Error(w, "Ошибка получения последних тредов", http.StatusInternalServerError)
+		return
+	}
+	tredsChildsData, err := app.treds.GetChildTreds()
+
+	data := &templateData{
+		User:       userData,
+		Treds:      tredsData,
+		TredsChild: tredsChildsData,
+	}
+
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+
 	// Ваш код для отображения профиля пользователя
 	files := []string{
 		"..\\..\\ui\\html\\profile.page.tmpl",
@@ -81,7 +140,7 @@ func (app *application) profile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = ts.Execute(w, nil)
+	err = ts.Execute(w, data)
 	if err != nil {
 		app.errorLog.Println(err.Error())
 		http.Error(w, "Внутренняя ошибка сервера", http.StatusInternalServerError)
@@ -154,7 +213,6 @@ func (app *application) logout(w http.ResponseWriter, r *http.Request) {
 
 // Страница регистрация пользователя
 func (app *application) registration(w http.ResponseWriter, r *http.Request) {
-
 	if r.Method == http.MethodPost {
 		// Получаем логин и пароль из формы POST
 		email := r.FormValue("email")
@@ -218,45 +276,6 @@ func (app *application) registration(w http.ResponseWriter, r *http.Request) {
 		// из структуры application.
 		app.errorLog.Println(err.Error())
 		http.Error(w, "Внутренняя ошибка сервера", 500)
-	}
-}
-
-// Обработчик для отображения содержимого заметки.
-func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(r.URL.Query().Get("id"))
-	if err != nil || id < 1 {
-		http.NotFound(w, r)
-		return
-	}
-
-	s, err := app.snippets.Get(id)
-	if err != nil {
-		if errors.Is(err, models.ErrNoRecord) {
-			http.NotFound(w, r)
-		} else {
-			http.NotFound(w, r)
-		}
-		return
-	}
-
-	// Создаем экземпляр структуры templateData, содержащей данные заметки.
-	data := &templateData{Snippet: s}
-
-	files := []string{
-		"..\\..\\ui\\html\\show.page.tmpl",
-		"..\\..\\ui\\html\\base.layout.tmpl",
-		"..\\..\\ui\\html\\footer.partial.tmpl",
-	}
-
-	ts, err := template.ParseFiles(files...)
-	if err != nil {
-		http.NotFound(w, r)
-		return
-	}
-
-	err = ts.Execute(w, data)
-	if err != nil {
-		http.NotFound(w, r)
 	}
 }
 

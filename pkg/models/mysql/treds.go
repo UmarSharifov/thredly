@@ -44,7 +44,40 @@ func (m *TredModel) Insert(UserId, Content string) (int, error) {
 	return int(id), nil
 }
 func (m *TredModel) GetLatest() ([]*models.Tred, error) {
-	stmt := `SELECT * FROM tred ORDER BY id DESC LIMIT 10;`
+
+	stmt := `SELECT * FROM tred ORDER BY publication_data where parent_tred_id is null;`
+
+	rows, err := m.DB.Query(stmt)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+	// Создаем пустой массив, который будет содержать все заметки
+	var treds []*models.Tred
+	// Цикл, который будет проходить по всем строкам в наборе результатов
+	for rows.Next() {
+		s := &models.Tred{}
+		err = rows.Scan(&s.ID, &s.UserId, &s.PublicationDate, &s.ViewsCount, &s.Content, &s.Photo)
+		if err != nil {
+			return nil, err
+		}
+		treds = append(treds, s)
+	}
+	// Когда цикл rows.Next() завершается, вызываем метод rows.Err(), чтобы узнать
+	// если в ходе работы у нас не возникла какая либо ошибка.
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	// Если все в порядке, возвращаем срез с данными.
+	return treds, nil
+
+}
+
+func (m *TredModel) GetChildTreds() ([]*models.Tred, error) {
+
+	stmt := `SELECT * FROM tred ORDER BY publication_data where parent_tred_id is not null;`
 
 	rows, err := m.DB.Query(stmt)
 	if err != nil {

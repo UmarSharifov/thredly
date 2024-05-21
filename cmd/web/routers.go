@@ -5,7 +5,6 @@ import "net/http"
 func (app *application) routes() *http.ServeMux {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", app.home)
-	mux.HandleFunc("/snippet", app.showSnippet)
 	mux.HandleFunc("/profile", app.profile)
 	mux.HandleFunc("/createthred", app.createThred)
 	mux.HandleFunc("/auth", app.auth)
