@@ -1,0 +1,66 @@
+{{template "base" .}}
+
+{{define "title"}}Домашняя страница{{end}}
+
+{{define "main"}}
+<div class="mx-auto">
+    <div class="flex">
+        <div class="basis-1/2 bg-white ml-auto mr-12 rounded-lg border-zink-100 px-8 py-2 my-4">
+            <div class="ml-2 text-xl text-indigo-200 my-6">
+                <div class="flex">
+                    <span class="flex">Опубликуйте свое событие</span>
+                    <hr>
+                </div>
+                <form class="w-full mx-auto py-12" method="post">
+                    <div class="items-center border-b border-indigo-400 py-2">
+                      <input type="hidden" name="parentThreadId" value="0">
+                      <textarea name="tredArea" class="rounded-md appearance-none bg-transparent w-full text-gray-700 mr-3 py-1 px-2 leading-tight focus:border-none resize-none border-1 border-indigo-200" rows="5"></textarea>
+                      <select name="category_select" id="category_select" class="py-2.5 px-0 text-sm font-semibold text-indigo-500 bg-transparent border-0 border-b border-indigo-500 appearance-none dark:text-gray-400 dark:border-gray-700 focus:outline-none focus:ring-0">
+                        <option value="0" disabled selected>Выберите категорию</option>
+                        {{range .EventsCategories}}  
+                        <option class="p-2" value="{{.ID}}">{{.Name}}</option>
+                        {{end}} 
+                    </select>
+                      <button class="flex-shrink-0 bg-indigo-400 text-sm border-2 border-indigo-400 hover:border-indigo-400 hover:bg-white text-white py-1 px-2 rounded hover:text-indigo-400" type="submit">
+                        Опубликовать
+                      </button>
+                      <button class="flex-shrink-0 border-transparent border-4 text-indigo-200 hover:text-indigo-400 text-sm py-1 px-2 rounded" type="button">
+                        Отмена
+                      </button> 
+                    </div>
+                  </form>
+            </div>
+        </div>
+        <div class="basis-1/5 bg-white rounded-lg border-zink-100 my-4 mr-44 px-4 py-8 h-60">
+            <h1 class="text-gray-950 rounded-md pr-3 py-2 text-2xl font-medium">Категории</h1>
+            {{range .EventsCategories}}
+            <a href="#" class="text-gray-300 hover:text-gray-950 pr-1 rounded-md font-medium">{{.Name}}</a>
+            {{end}}
+        </div>
+    </div>
+</div>
+{{end}}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const countdownDate = new Date("June 30, 2024 23:59:59").getTime();
+
+        const interval = setInterval(function () {
+            const now = new Date().getTime();
+            const distance = countdownDate - now;
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+
+            document.getElementById("days").innerText = days.toString().padStart(2, '0');
+            document.getElementById("hours").innerText = hours.toString().padStart(2, '0');
+            document.getElementById("minutes").innerText = minutes.toString().padStart(2, '0');
+
+            if (distance < 0) {
+                clearInterval(interval);
+                document.getElementById("countdown").innerText = "Время истекло";
+            }
+        }, 1000);
+    });
+</script>

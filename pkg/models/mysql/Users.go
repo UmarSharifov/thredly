@@ -3,6 +3,7 @@ package mysql
 import (
 	"database/sql"
 	"errors"
+	"strconv"
 
 	"thredly.com/thredly/pkg/models"
 )
@@ -30,63 +31,87 @@ func (m *UserModel) Insert(LastName, FirstName, Photo, Email, PhoneNumber, UserL
 	return int(id), nil
 }
 
-// Insert - Метод для создания новой заметки в базе дынных.
+// Update - Метод для обновления данных пользователя в базе данных.
 func (m *UserModel) Update(idU, LastName, FirstName, Photo, Email, PhoneNumber string) (int, error) {
-	// Ниже будет SQL запрос, который мы хотим выполнить. Мы разделили его на две строки
-	// для удобства чтения (поэтому он окружен обратными кавычками
-	// вместо обычных двойных кавычек).
-	// stmt := `INSERT INTO snippets (title, content, created, expires)
-	// VALUES(?, ?, UTC_TIMESTAMP(), DATE_ADD(UTC_TIMESTAMP(), INTERVAL ? DAY))`
-
-	stmt := `update useraccount set last_name = ?, first_name = ?, 
+	// SQL запрос для обновления данных пользователя
+	stmt := `UPDATE useraccount SET last_name = ?, first_name = ?, 
 	photo = ?, email = ?, 
-	phone_number = ? where id = ?`
+	phone_number = ? WHERE id = ?`
 
-	// Используем метод Exec() из встроенного пула подключений для выполнения
-	// запроса. Первый параметр это сам SQL запрос, за которым следует
-	// заголовок заметки, содержимое и срока жизни заметки. Этот
-	// метод возвращает объект sql.Result, который содержит некоторые основные
-	// данные о том, что произошло после выполнении запроса.
-	result, err := m.DB.Exec(stmt, LastName, FirstName, Photo, Email, PhoneNumber, idU)
+	// Выполняем запрос
+	_, err := m.DB.Exec(stmt, LastName, FirstName, Photo, Email, PhoneNumber, idU)
 	if err != nil {
 		return 0, err
 	}
 
-	// Используем метод LastInsertId(), чтобы получить последний ID
-	// созданной записи из таблицу snippets.
-	id, err := result.LastInsertId()
+	// Конвертируем idU в int
+	id, err := strconv.Atoi(idU)
 	if err != nil {
 		return 0, err
 	}
 
-	// Возвращаемый ID имеет тип int64, поэтому мы конвертируем его в тип int
-	// перед возвратом из метода.
-	return int(id), nil
+	// Возвращаем ID пользователя
+	return id, nil
 }
 
-// Get - Метод для возвращения данных заметки по её идентификатору ID.
+func (m *UserModel) GetSubscribleCount(userId int) (int, error) {
+	// SQL запрос для обновления данных пользователя
+	stmt := `select count(*) from userSubscription where subscriber_id = ?`
+
+	row := m.DB.QueryRow(stmt, userId)
+
+	// Переменная для сохранения результата
+	var s int
+
+	// Считываем результат запроса
+	err := row.Scan(&s)
+	if err != nil {
+		return 0, err
+	}
+
+	// Возвращаем результат
+	return s, nil
+}
+
+func (m *UserModel) GetSubscribleToCount(userId int) (int, error) {
+	// SQL запрос для обновления данных пользователя
+	stmt := `select count(*) from userSubscription where subscribed_to_id = ?`
+
+	row := m.DB.QueryRow(stmt, userId)
+
+	// Переменная для сохранения результата
+	var s int
+
+	// Считываем результат запроса
+	err := row.Scan(&s)
+	if err != nil {
+		return 0, err
+	}
+
+	// Возвращаем результат
+	return s, nil
+}
+
+// Get - Метод для возвращения данных пользователя по его идентификатору ID.
 func (m *UserModel) Get(id int) (*models.User, error) {
 	// SQL запрос для получения данных одной записи.
-	stmt := `SELECT ID, first_name, last_name, email, date_of_birth, phone_number FROM useraccount WHERE id = ?`
-	// (&s.ID, &s.FirstName, &s.LastName, &s.Email, &s.DateOfBirthDay, &s.PhoneNumber)
+	stmt := `SELECT id, first_name, last_name, email, date_of_birth, phone_number, photo FROM useraccount WHERE id = ?`
+
 	// Используем метод QueryRow() для выполнения SQL запроса,
-	// передавая ненадежную переменную id в качестве значения для плейсхолдера
-	// Возвращается указатель на объект sql.Row, который содержит данные записи.
+	// передавая id в качестве значения для плейсхолдера.
 	row := m.DB.QueryRow(stmt, id)
 
-	// Инициализируем указатель на новую структуру Snippet.
+	// Инициализируем указатель на новую структуру User.
 	s := &models.User{}
 
-	// Используйте row.Scan(), чтобы скопировать значения из каждого поля от sql.Row в
+	// Используем row.Scan() для копирования значений из каждого поля от sql.Row в
 	// соответствующее поле в структуре User. Обратите внимание, что аргументы
 	// для row.Scan - это указатели на место, куда требуется скопировать данные
 	// и количество аргументов должно быть точно таким же, как количество
 	// столбцов в таблице базы данных.
-
-	err := row.Scan(&s.ID, &s.FirstName, &s.LastName, &s.Email, &s.DateOfBirthDay, &s.PhoneNumber)
+	err := row.Scan(&s.ID, &s.FirstName, &s.LastName, &s.Email, &s.DateOfBirthDay, &s.PhoneNumber, &s.Photo)
 	if err != nil {
-		// Специально для этого случая, мы проверим при помощи функции errors.Is()
-		// если запрос был выполнен с ошибкой. Если ошибка обнаружена, то
+		// Проверяем, если запрос был выполнен с ошибкой. Если ошибка обнаружена, то
 		// возвращаем нашу ошибку из модели models.ErrNoRecord.
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, models.ErrNoRecord
@@ -97,6 +122,85 @@ func (m *UserModel) Get(id int) (*models.User, error) {
 
 	// Если все хорошо, возвращается объект User.
 	return s, nil
+}
+
+// Get - Метод для возвращения данных пользователя по его идентификатору ID.
+func (m *UserModel) GetSubscrible(userId int) ([]*models.User, error) {
+	// SQL запрос для получения данных одной записи.
+	stmt := `SELECT id, first_name, last_name, email, date_of_birth, phone_number, photo 
+			FROM useraccount AS u
+			WHERE EXISTS (
+				SELECT 1
+				FROM userSubscription AS s
+				WHERE s.subscriber_id = ? AND s.subscribed_to_id = u.id
+			) and id != ?
+LIMIT 3
+	`
+
+	rows, err := m.DB.Query(stmt, userId, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	var users []*models.User
+
+	for rows.Next() {
+		s := &models.User{}
+		err := rows.Scan(&s.ID, &s.FirstName, &s.LastName, &s.Email, &s.DateOfBirthDay, &s.PhoneNumber, &s.Photo)
+		if err != nil {
+			// Проверяем, если запрос был выполнен с ошибкой. Если ошибка обнаружена, то
+			// возвращаем нашу ошибку из модели models.ErrNoRecord.
+			if errors.Is(err, sql.ErrNoRows) {
+				return nil, models.ErrNoRecord
+			} else {
+				return nil, err
+			}
+		}
+		users = append(users, s)
+
+	}
+
+	// Если все хорошо, возвращается объект User.
+	return users, nil
+}
+
+// Get - Метод для возвращения данных пользователя по его идентификатору ID.
+func (m *UserModel) GetSubscribleAll(userId int) ([]*models.User, error) {
+	// SQL запрос для получения данных одной записи.
+	stmt := `SELECT id, first_name, last_name, email, date_of_birth, phone_number, photo 
+			FROM useraccount AS u
+			WHERE NOT EXISTS (
+				SELECT 1
+				FROM userSubscription AS s
+				WHERE s.subscriber_id = ? AND s.subscribed_to_id = u.id
+			) and id != ?;
+	`
+
+	rows, err := m.DB.Query(stmt, userId, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	var users []*models.User
+
+	for rows.Next() {
+		s := &models.User{}
+		err := rows.Scan(&s.ID, &s.FirstName, &s.LastName, &s.Email, &s.DateOfBirthDay, &s.PhoneNumber, &s.Photo)
+		if err != nil {
+			// Проверяем, если запрос был выполнен с ошибкой. Если ошибка обнаружена, то
+			// возвращаем нашу ошибку из модели models.ErrNoRecord.
+			if errors.Is(err, sql.ErrNoRows) {
+				return nil, models.ErrNoRecord
+			} else {
+				return nil, err
+			}
+		}
+		users = append(users, s)
+
+	}
+
+	// Если все хорошо, возвращается объект User.
+	return users, nil
 }
 
 // Get - Метод для возвращения данных заметки по её логину и паролю

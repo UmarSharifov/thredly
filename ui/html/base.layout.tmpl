@@ -3,7 +3,7 @@
 <html lang='en'>
 <head>
     <meta charset='utf-8'>
-    <title>{{template "title" .}} - Хранилище Заметок</title>
+    <title>{{template "title" .}} - thredly</title>
     <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700'>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
@@ -30,17 +30,11 @@
             <img class="h-8 w-auto" src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500" alt="Your Company">
             </div>
             <div class="hidden sm:ml-6 sm:block">
-            <div class="flex space-x-4">
-                <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" -->
-                <a href="http://127.0.0.1:4000/" class="text-gray-950 hover:text-gray-950 px-3 py-2 text-xl font-medium">Главная</a>
-                <a href="#" class="text-gray-300 hover:text-gray-950 rounded-md px-3 py-2 text-xl font-medium">Рекомендовано</a>
-                <a href="#" class="text-gray-300 hover:text-gray-950 rounded-md px-3 py-2 text-xl font-medium">События</a>
-
-            </div>
+                {{.CurrentMenu}}
             </div>
         </div>
         <div class="absolute inset-y-0 right-0 flex items-center pr-12 sm:static sm:inset-auto sm:ml-12 sm:pr-0">
-            <a href="http://127.0.0.1:4000/profile" class="text-gray-300 hover:text-gray-950 rounded-md px-3 py-2 text-xl font-medium">Моя страница</a>
+            <a href="http://127.0.0.1:4000/profile" class="text-gray-{{.ActiveValue}} hover:text-gray-950 rounded-md px-3 py-2 text-xl font-medium">Моя страница</a>
             <button type="button" class="relative p-1 text-gray-400 hover:text-gray-950">
             <span class="absolute -inset-1.5"></span>
             <span class="sr-only">View notifications</span>

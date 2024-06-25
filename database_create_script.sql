@@ -31,6 +31,7 @@ CREATE TABLE tred (
     photo VARCHAR(255)
 );
 alter table tred add column parent_tred_id int ;
+alter table tred add column category_id int ;
 INSERT INTO tred (user_id, publication_date, views_count, content, photo) VALUES
 (1, NOW(), 100, 'Содержание треда 1', 'photo1.jpg'),
 (2, NOW(), 150, 'Содержание треда 2', 'photo2.jpg'),
@@ -61,4 +62,69 @@ CREATE TABLE treds_relations (
     foreign key (tred_parent) REFERENCES tred(id),
     tred_child INT,
     foreign key (tred_child) REFERENCES tred(id)
+);
+
+CREATE TABLE category (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50)
+);
+
+INSERT INTO category (name) VALUES
+('Бакалавры'),
+('Магистры'),
+('Абитуриенты'),
+('Преподаватели'),
+('Экзамены'),
+('Пересдача'),
+('Общежитие'),
+('Иностранцам'),
+('Олимпиады'),
+('Мероприятия'),
+('Волонтерство');
+
+
+CREATE TABLE t_events (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    publication_date DATETIME,
+    views_count INT,
+    content TEXT,
+    category_id INT,
+    photo VARCHAR(255)
+);
+
+INSERT INTO t_events (user_id, publication_date, views_count, content, photo) VALUES
+(1, NOW(), 100, 'Содержание треда 1', 1, 'photo1.jpg');
+
+CREATE TABLE event_category (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50)
+);
+
+INSERT INTO event_category (name) VALUES
+('Университет'),
+('Общежитие'),
+('Свободное от учебы время'),
+('Волонтерство'),
+('Спорт');
+
+
+CREATE TABLE complaint (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    tred_id INT,
+    complaint_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    description TEXT,
+    FOREIGN KEY (user_id) REFERENCES userAccount(id),
+    FOREIGN KEY (tred_id) REFERENCES tred(id)
+);
+
+
+CREATE TABLE userSubscription (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    subscriber_id INT NOT NULL,
+    subscribed_to_id INT NOT NULL,
+    subscription_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (subscriber_id) REFERENCES userAccount(id) ON DELETE CASCADE,
+    FOREIGN KEY (subscribed_to_id) REFERENCES userAccount(id) ON DELETE CASCADE
 );

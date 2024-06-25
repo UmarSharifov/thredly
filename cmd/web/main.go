@@ -1,7 +1,7 @@
 package main
 
 import (
-	"database/sql" // Новый импорт
+	"database/sql"
 	"flag"
 	"log"
 
@@ -14,16 +14,22 @@ import (
 )
 
 type application struct {
-	errorLog     *log.Logger
-	infoLog      *log.Logger
-	snippets     *mysql.SnippetModel
-	users        *mysql.UserModel
-	treds        *mysql.TredModel
-	sessionStore *sessions.CookieStore
+	errorLog      *log.Logger
+	infoLog       *log.Logger
+	users         *mysql.UserModel
+	treds         *mysql.TredModel
+	sessionStore  *sessions.CookieStore
+	categories    *mysql.CategoriesMoodel
+	eventsObject  *mysql.EventsMoodel
+	eventsCategoy *mysql.EventsCategoriesMoodel
+	Complaint     *mysql.ComplaintModel
+	Subscribe     *mysql.SubscribeModel
+	Tag           *mysql.TagsModel
 }
 
 func main() {
 	addr := flag.String("addr", ":4000", "Сетевой адрес веб-сервера")
+
 	// Определение нового флага из командной строки для настройки MySQL подключения.
 	dsn := flag.String("dsn", "web:pass@/snippetbox?parseTime=true", "Название MySQL источника данных")
 	secret := flag.String("secret", "your-secret-key", "Ключ для шифрования сессий") // Добавьте ключ для шифрования сессий
@@ -46,12 +52,17 @@ func main() {
 	defer db.Close()
 	sessionStore := sessions.NewCookieStore([]byte(*secret))
 	app := &application{
-		errorLog:     errorLog,
-		infoLog:      infoLog,
-		snippets:     &mysql.SnippetModel{DB: db},
-		users:        &mysql.UserModel{DB: db},
-		treds:        &mysql.TredModel{DB: db},
-		sessionStore: sessionStore,
+		errorLog:      errorLog,
+		infoLog:       infoLog,
+		users:         &mysql.UserModel{DB: db},
+		treds:         &mysql.TredModel{DB: db},
+		categories:    &mysql.CategoriesMoodel{DB: db},
+		eventsObject:  &mysql.EventsMoodel{DB: db},
+		eventsCategoy: &mysql.EventsCategoriesMoodel{DB: db},
+		Complaint:     &mysql.ComplaintModel{DB: db},
+		Subscribe:     &mysql.SubscribeModel{DB: db},
+		Tag:           &mysql.TagsModel{DB: db},
+		sessionStore:  sessionStore,
 	}
 
 	srv := &http.Server{

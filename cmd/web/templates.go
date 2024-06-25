@@ -1,17 +1,28 @@
 package main
 
-import "thredly.com/thredly/pkg/models"
+import (
+	"html/template"
 
-// Создаем тип templateData, который будет действовать как хранилище для
-// любых динамических данных, которые нужно передать HTML-шаблонам.
-// На данный момент он содержит только одно поле, но мы добавим в него другие
-// по мере развития нашего приложения.
+	"thredly.com/thredly/pkg/models"
+)
+
 type templateData struct {
-	Snippet    *models.Snippet
-	Snippets   []*models.Snippet
-	User       *models.User
-	Users      []*models.User
-	Tred       *models.Tred
-	Treds      []*models.Tred
-	TredsChild []*models.Tred
+	User                   *models.User
+	Users                  []*models.User
+	Tred                   *models.Tred
+	Treds                  []*models.Tred
+	TredsWithChilds        []*models.TredsWithChilds
+	Categories             []*models.Categories
+	Events                 []*models.Events
+	EventsCategories       []*models.EventCategories
+	CurrentCategory        string
+	CurrentMenu            template.HTML
+	ActiveValue            string
+	ComplaintWithDetails   []*models.ComplaintWithDetails
+	ErrorMessageCreateTred string
+	CurrentTredBackstage   string
+	UserSubsTo             int
+	UserSubsFrom           int
+	UserTredsCount         int
+	ParentTredId           string
 }

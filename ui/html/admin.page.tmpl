@@ -1,0 +1,87 @@
+{{template "base" .}}
+ 
+{{define "title"}}Домашняя страница{{end}}
+ 
+{{define "main"}}
+<div class="mx-auto">
+<div class="flex">
+<div class="basis-1/2 bg-white ml-auto mr-2 rounded-lg border-zink-100 px-8 py-2 my-4">
+    <div class="text-right">
+    </div>
+    <section class="bg-white dark:bg-gray-900 py-8 lg:py-16 antialiased">
+        <div class="mx-auto px-4">
+            <article class="p-2 text-base bg-white rounded-lg dark:bg-gray-900">
+                <div class="">
+                 <form action="">
+                        <p class="text-indigo-200 text-2xl">Модель нейросети для фильтрации тредов</p>
+                        <div class="">
+                            <div class="items-center p-4 border border-indigo-200 rounded dark:border-gray-700 my-2">
+                                <input id="bordered-radio-1" type="radio" value="" name="bordered-radio" class="w-4 h-4 text-indigo-200 bg-gray-100 border-indigo-400 focus:ring-indigo-500 focus:ring-1">
+                                <label for="bordered-radio-1" class="py-4 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">gpt-4o</label>
+                            </div>
+                            <div class="items-center p-4 border border-indigo-200 rounded dark:border-gray-700 my-2">
+                                <input id="bordered-radio-2" type="radio" value="" name="bordered-radio" class="w-4 h-4 text-indigo-200 bg-gray-100 border-indigo-400 focus:ring-indigo-500 focus:ring-1">
+                                <label for="bordered-radio-2" class="py-4 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">gpt-4-turbo</label>
+                            </div>
+                            <div class="items-center p-4 border border-indigo-200 rounded dark:border-gray-700 my-2">
+                                <input id="bordered-radio-3" type="radio" value="" name="bordered-radio" class="w-4 h-4 text-indigo-200 bg-gray-100 border-indigo-400 focus:ring-indigo-500 focus:ring-1">
+                                <label for="bordered-radio-3" class="py-4 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">gpt-4</label>
+                            </div>
+                            <div class="items-center p-4 border border-indigo-200 rounded dark:border-gray-700 my-2">
+                                <input id="bordered-radio-4" type="radio" value="" name="bordered-radio" class="w-4 h-4 text-indigo-200 bg-gray-100 border-indigo-400 focus:ring-indigo-500 focus:ring-1" checked>
+                                <label for="bordered-radio-4" class="py-4 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">gpt-3.5-turbo</label>
+                            </div>
+                            <div class="items-center p-4 border border-indigo-200 rounded dark:border-gray-700 my-2">
+                                <input id="bordered-radio-5" type="radio" value="" name="bordered-radio" class="w-4 h-4 text-indigo-200 bg-gray-100 border-indigo-400 focus:ring-indigo-500 focus:ring-1">
+                                <label for="bordered-radio-5" class="py-4 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">text-embedding-3-small</label>
+                            </div>
+                        </div>
+
+                    </form>
+      
+                    <p class="text-indigo-200 text-2xl">Жалобы</p>                   
+ {{range .ComplaintWithDetails}}                   
+                    <article class="p-6 mb-3 text-base bg-white border-t border-gray-200 dark:border-gray-700 dark:bg-gray-900">
+                        <footer class="flex justify-between items-center mb-2">
+                            <div class="flex items-center">
+                                <p class="inline-flex items-center mr-3 text-sm text-gray-900 dark:text-white font-semibold">
+                                  Жалоба от пользователя: {{.UserFirstName}} {{.UserLastName}}</p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400"><time pubdate datetime="2022-03-12"
+                                        title="March 12th, 2022">Дата жалобы:{{.ComplaintDate}} </time></p>
+                            </div>
+                            <!-- Dropdown menu -->
+                            <button id="dropdownComment{{.ID}}Button" data-dropdown-toggle="dropdownComment{{.ID}}"
+                            class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-500 dark:text-gray-40 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-50 dark:bg-gray-900 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+                            type="button">
+                            <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 3">
+                                <path d="M2 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm6.041 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM14 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Z"/>
+                            </svg>
+                            <span class="sr-only">Comment settings</span>
+                            </button>
+                        <!-- Dropdown menu -->
+                                <div id="dropdownComment{{.ID}}"
+                                class="hidden z-10 text-white rounded divide-y divide-gray-100">
+                                    <ul class=""
+                                        aria-labelledby="dropdownMenuIconHorizontalButton">
+                                        <li class="py-1 my-2 px-2 text-sm text-gray-500 bg-indigo-200 shadow"><a href="#">Удалить тред</a></li>
+                                        <li class="py-1 my-2 px-2 text-sm text-gray-500 bg-yellow-200 shadow"><a href="#">Отправить уведомление автору</a></li>
+                                        <li class="py-1 my-2 px-2 text-sm text-gray-500 bg-red-200 shadow"><a href="#">Заблокировать автора</a></li>
+                                        <li class="py-1 my-2 px-2 text-sm text-gray-500 bg-green-200 shadow"><a href="#">Закрыть жалобу</a></li>
+                                    </ul>
+                                </div>
+                        </footer>
+                        <p class="text-gray-500 dark:text-gray-400">Содержимое треда: {{.TredContent}}</p>
+                        <div class="flex items-center mt-4 space-x-4">
+                        </div>
+                    </article>
+                
+{{end}}
+                </div>
+            </article>
+        </div>
+    </section>
+</div>
+<div class=" basis-1/5 rounded-lg border-zink-100 my-4 mr-44 px-4 py-8 h-60"></div> 
+</div>
+</div>
+{{end}}

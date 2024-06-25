@@ -5,52 +5,65 @@
 {{define "main"}}
 <div class="mx-auto">
     <div class="flex">
-        <div class="basis-1/2 bg-white mx-auto rounded-lg border-zink-100 px-8 py-2 my-8 ">
+        <div class="basis-1/2 bg-white mx-auto rounded-lg border-zink-100 px-8 py-2 my-8">
             <section class="bg-white dark:bg-gray-900 pb-8 lg:pb-16 antialiased">
                 <div class="mx-auto px-4">
                     <img class="h-8 text-center mx-auto" src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500" alt="Your Company">
-                    <p class="text-xl text-indigo-500 font-semibold text-center my-4">Спасибо, что зарегался, расскажи кто ты воин ?</p>
-
-                    <form action="/profile/detail?id={{.User.ID}}" method="post" class="w-1/2 mx-auto">
-
+                    <p class="text-xl text-indigo-500 font-semibold text-center my-4">Добро пожаловать в Thredly</p>
+                    <p class="text-xl text-indigo-500 font-semibold text-center my-4">Давайте узнаем друг друга получше</p>
+                    <form action="/profile/detail?id={{.User.ID}}" method="post" class="w-1/2 mx-auto" enctype="multipart/form-data">
                         <input type="hidden" name="id" value="{{.User.ID}}">
+                        
+                        {{if .User.Photo}}
+                        <div class="mb-6 text-center">
+                            <img src="/static/img/{{.User.Photo}}" alt="Profile Picture" class="rounded-full h-24 w-24 mx-auto">
+                        </div>
+                        {{end}}
+
                         <div class="mb-6">
-                            <label for="first_name" class="block text-gray-500 font-bold mb-2">Как тебя зовут ?</label>
+                            <label for="profile_picture" class="block text-gray-500 font-bold mb-2">Загрузить фото профиля</label>
+                            <input type="file" id="profile_picture" name="profile_picture" class="shadow border border-indigo-500 rounded w-full py-2 px-3 leading-tight text-indigo-500">
+                        </div>
+
+                        <div class="mb-6">
+                            <label for="first_name" class="block text-gray-500 font-bold mb-2">Как тебя зовут?</label>
                             <input type="text" id="first_name" name="first_name" placeholder="{{.User.FirstName}}"
                                 class="shadow border border-indigo-500 rounded w-full py-2 px-3 leading-tight text-indigo-500">
-                                <!-- w-full text-indigo-500 border border-indigo-500  bg-primary-600 hover:bg-indigo-200 hover:border-indigo-200 hover:shadow font-medium rounded-lg text-sm px-5 py-2.5 text-center -->
-                        
-                            </div>
+                        </div>
+
                         <div class="mb-6">
-                            <label for="last_name" class="block text-gray-500 font-bold mb-2">Из какого ты племени ?</label>
+                            <label for="last_name" class="block text-gray-500 font-bold mb-2">Какая у тебя фамилия?</label>
                             <input type="text" id="last_name" name="last_name" placeholder="{{.User.LastName}}"
-                            class="shadow border border-indigo-500 rounded w-full py-2 px-3 leading-tight text-indigo-500">
+                                class="shadow border border-indigo-500 rounded w-full py-2 px-3 leading-tight text-indigo-500">
                         </div>
+
                         <div class="mb-6">
-                            <label for="email" class="block text-gray-500 font-bold mb-2">Гнездо твоего голубя (Mail)</label>
+                            <label for="email" class="block text-gray-500 font-bold mb-2">Почта</label>
                             <input type="email" id="email" name="email" placeholder="{{.User.Email}}"
-                            class="shadow border border-indigo-500 rounded w-full py-2 px-3 leading-tight text-indigo-500">
+                                class="shadow border border-indigo-500 rounded w-full py-2 px-3 leading-tight text-indigo-500">
                         </div>
+
                         <div class="mb-6">
-                            <label for="phone_number" class="block text-gray-500 font-bold mb-2">Цифры мобильного голубя</label>
+                            <label for="phone_number" class="block text-gray-500 font-bold mb-2">Телефон</label>
                             <input type="text" id="phone_number" name="phone_number" placeholder="{{.User.PhoneNumber}}"
-                            class="shadow border border-indigo-500 rounded w-full py-2 px-3 leading-tight text-indigo-500">
+                                class="shadow border border-indigo-500 rounded w-full py-2 px-3 leading-tight text-indigo-500">
                         </div>
+
                         <div class="mb-6">
-                            <label for="date_of_birth" class="block text-gray-500 font-bold mb-2">При каком царе родился ?</label>
+                            <label for="date_of_birth" class="block text-gray-500 font-bold mb-2">Дата рождения</label>
                             <input type="date" id="date_of_birth" name="date_of_birth" placeholder="{{.User.DateOfBirthDay}}"
-                            class="shadow border border-indigo-500 rounded w-full py-2 px-3 leading-tight text-indigo-500">
+                                class="shadow border border-indigo-500 rounded w-full py-2 px-3 leading-tight text-indigo-500">
                         </div>
+
                         <div class="flex items-center justify-between">
-                            <button type="submit"
-                            class="w-full text-indigo-500 border border-indigo-500  bg-primary-600 hover:bg-indigo-200 hover:border-indigo-200 hover:shadow font-medium rounded-lg p-2">
+                            <button type="submit" class="w-full text-indigo-500 border border-indigo-500 bg-primary-600 hover:bg-indigo-200 hover:border-indigo-200 hover:shadow font-medium rounded-lg p-2">
                                 Сохранить
                             </button>
                         </div>
                     </form>
                 </div>
             </section>
-        </div> 
+        </div>
     </div>
 </div>
 {{end}}

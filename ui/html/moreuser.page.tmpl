@@ -1,0 +1,78 @@
+{{template "base" .}}
+ 
+{{define "title"}}Домашняя страница{{end}}
+ 
+{{define "main"}}
+<div class="mx-auto">
+<div class="flex">
+<div class="basis-1/2 bg-white ml-auto mr-2 rounded-lg border-zink-100 px-8 py-2 my-4">
+    <section class="bg-white dark:bg-gray-900 py-8 lg:py-16 antialiased">
+        <div class="mx-auto px-4">
+            <h1 class="text-xl text-indigo-500 dark:text-white font-semibold my-2">Интересные каналы</h1>
+            <article class="p-2 text-base bg-white rounded-lg dark:bg-gray-900">
+                {{range .Users}}        
+                <article class="p-2 text-base bg-white rounded-lg dark:bg-gray-900">
+                    <footer class="flex justify-between items-center mb-2">
+                        <div class="items-center">
+                            <p class="pr-3 text-sm text-gray-900 dark:text-white font-semibold">
+                                <img class="h-14 w-14 rounded-full" src="/static/img/{{.Photo}}" alt="{{.FirstName}} {{.LastName}}">
+                            </p>
+                        </div>
+                        <div class="mr-auto ml-0">
+                            <p class="text-sm text-gray-900 dark:text-white font-semibold">
+                                <time pubdate datetime="2022-02-08" title="Годжо Сатору">{{.FirstName}} {{.LastName}}</time>
+                            </p>
+                        </div>
+                        <button class="subscribe-btn text-sm text-blue-900 text-gray-500 py-2 px-3 rounded-full bg-indigo-200" data-user-id="{{.ID}}">
+                            Подписаться
+                        </button>
+                    </footer>
+                </article>
+                {{end}}
+            </article>
+        </div>
+    </section>
+</div> 
+    <div class=" basis-1/5 rounded-lg border-zink-100 my-4 mr-44 px-4 py-6">
+
+    </div>
+
+    </div>
+</div>
+{{end}}
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var buttons = document.querySelectorAll('.subscribe-btn');
+        
+        buttons.forEach(function(button) {
+            button.addEventListener('click', function() {
+                var userId = this.getAttribute('data-user-id');
+                
+                fetch('/subscribe', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ userId: userId })
+                })
+                .then(response => {
+                    if (response.ok) {
+                        // Если запрос успешный, делаем кнопку неактивной
+                        this.disabled = true;
+                        this.textContent = 'Подписано';
+                        this.classList.add('bg-gray-400'); // Изменяем стиль кнопки
+                        this.classList.remove('bg-indigo-200'); // Удаляем старый стиль
+                    } else {
+                        // Обрабатываем ошибку
+                        console.error('Ошибка при подписке');
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка:', error);
+                });
+            });
+        });
+    });
+</script>

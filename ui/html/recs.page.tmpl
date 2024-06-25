@@ -9,29 +9,23 @@
     
     <div class="ml-2 text-xl text-indigo-200 my-6">
         <p>
-        Треды страниц на которые вы подписаны
+        Рекомендации
         </p>
     </div >
     {{range .Treds}}
-        {{template "tred" .}}
+    {{template "tred" .}}
     {{end}}
 </div> 
 <div class=" basis-1/5 bg-white rounded-lg border-zink-100 my-4 mr-44 px-4 py-8 h-60">
     <h1 class="text-gray-950 rounded-md pr-3 py-2 text-2xl font-medium">Категории</h1>
 {{range .Categories}}
-    {{if eq .Name $.CurrentCategory}}
-    <a href="http://127.0.0.1:4000/?cat={{.Name}}" class="text-indigo-500 font-bold pr-1 rounded-md font-medium">{{.Name}}</a>
-    {{else}}
-    <a href="http://127.0.0.1:4000/?cat={{.Name}}" class="text-gray-300 hover:text-gray-950 pr-1 rounded-md font-medium">{{.Name}}</a>
-    {{end}}
+    <a href="#" class="text-gray-300 hover:text-gray-950 pr-1 rounded-md font-medium">{{.Name}}</a>
 {{end}}
-<br>
-    <a href="http://127.0.0.1:4000/" class="text-gray-300 hover:text-indigo-950 pr-1 rounded-md font-medium">Все категории</a>
-
 </div>
     </div>
 </div>
 {{end}}
+
 
 {{define "tred"}}
     <article class="p-6 mb-3 text-base bg-white border-t border-gray-200 dark:border-gray-700 dark:bg-gray-900">
@@ -69,7 +63,7 @@
         </footer>
         <p class="text-gray-500 dark:text-gray-400">{{.Content}}</p>
         <p class="text-indigo-500 text-sm pt-4">
-            #{{.Category}} {{range .Tags}} #{{.}} {{end}} 
+            #{{.Category}} #тег1 #тег2 #тег3 
         </p>
         <div class="flex items-center mt-4 space-x-4">
             <button type="button" onclick="toggleReplyForm(this)"
